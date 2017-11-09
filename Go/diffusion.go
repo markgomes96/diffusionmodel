@@ -21,6 +21,13 @@ func main(){
             }
         }
     }
+    
+    // Add in partition
+    for j = maxsize/2-1; j < maxsize; j++ {
+        for k = 0; k < maxsize; k++ {
+            cube[maxsize/2][j][k] = -1.0
+        }
+    }
 
     // Diffusion Variables
     var diffusion_coefficient float64 = 0.175
@@ -41,45 +48,47 @@ func main(){
     var time float64 = 0.0          // To keep up with accumulated system time
     var ratio float64 = 0.0
 
-    for {           // Loop until the maxval and minval are the same
-        for i = 0; i < maxsize; i++ {           // Iterate through every cube in the array
+    for {          // Loop until the maxval and minval are the same
+        for i = 0; i < maxsize; i++ {        // Iterate through every cube in the array
             for j = 0; j < maxsize; j++ {
                 for k = 0; k < maxsize; k++ {
-                    change = 0.0
-                    if i - 1 >= 0 {             // Check if the potential cube diffusion is within bounds
-                        change = (cube[i][j][k] - cube[i-1][j][k]) * DTerm
-                        cube[i][j][k] = cube[i][j][k] - change
-                        cube[i-1][j][k] = cube[i-1][j][k] + change
-                    }
-
-                    if i + 1 < maxsize {
-                        change = (cube[i][j][k] - cube[i+1][j][k]) * DTerm
-                        cube[i][j][k] = cube[i][j][k] - change
-                        cube[i+1][j][k] = cube[i+1][j][k] + change
-                    }
-                        
-                    if j - 1 >= 0 {
-                        change = (cube[i][j][k] - cube[i][j-1][k]) * DTerm
-                        cube[i][j][k] = cube[i][j][k] - change
-                        cube[i][j-1][k] = cube[i][j-1][k] + change
-                    }
-
-                    if j + 1 < maxsize {
-                        change = (cube[i][j][k] - cube[i][j+1][k]) * DTerm
-                        cube[i][j][k] = cube[i][j][k] - change
-                        cube[i][j+1][k] = cube[i][j+1][k] + change
-                    }
-
-                    if k - 1 >= 0 {
-                        change = (cube[i][j][k] - cube[i][j][k-1]) * DTerm
-                        cube[i][j][k] = cube[i][j][k] - change
-                        cube[i][j][k-1] = cube[i][j][k-1] + change
-                    }
-
-                    if k + 1 < maxsize {
-                        change = (cube[i][j][k] - cube[i][j][k+1]) * DTerm
-                        cube[i][j][k] = cube[i][j][k] - change
-                        cube[i][j][k+1] = cube[i][j][k+1] + change
+                    if cube[i][j][k] != -1.0 {
+                        change = 0.0
+                        if i - 1 >= 0 && cube[i-1][j][k] != -1.0 {      // Check if the potential cube diffusion is within bounds
+                            change = (cube[i][j][k] - cube[i-1][j][k]) * DTerm
+                            cube[i][j][k] = cube[i][j][k] - change
+                            cube[i-1][j][k] = cube[i-1][j][k] + change
+                        }
+    
+                        if i + 1 < maxsize && cube[i+1][j][k] != -1.0 {
+                            change = (cube[i][j][k] - cube[i+1][j][k]) * DTerm
+                            cube[i][j][k] = cube[i][j][k] - change
+                            cube[i+1][j][k] = cube[i+1][j][k] + change
+                        }
+                            
+                        if j - 1 >= 0 && cube[i][j-1][k] != -1.0 {
+                            change = (cube[i][j][k] - cube[i][j-1][k]) * DTerm
+                            cube[i][j][k] = cube[i][j][k] - change
+                            cube[i][j-1][k] = cube[i][j-1][k] + change
+                        }
+    
+                        if j + 1 < maxsize && cube[i][j+1][k] != -1.0 {
+                            change = (cube[i][j][k] - cube[i][j+1][k]) * DTerm
+                            cube[i][j][k] = cube[i][j][k] - change
+                            cube[i][j+1][k] = cube[i][j+1][k] + change
+                        }
+    
+                        if k - 1 >= 0 && cube[i][j][k-1] != -1.0 {
+                            change = (cube[i][j][k] - cube[i][j][k-1]) * DTerm
+                            cube[i][j][k] = cube[i][j][k] - change
+                            cube[i][j][k-1] = cube[i][j][k-1] + change
+                        }
+    
+                        if k + 1 < maxsize && cube[i][j][k+1] != -1.0 {
+                            change = (cube[i][j][k] - cube[i][j][k+1]) * DTerm
+                            cube[i][j][k] = cube[i][j][k] - change
+                            cube[i][j][k+1] = cube[i][j][k+1] + change
+                        }
                     }
                 }
             }
@@ -94,9 +103,11 @@ func main(){
         for i = 0; i < maxsize; i++ {
             for j = 0; j < maxsize; j++ {
                 for k = 0; k < maxsize; k++ {
-                    maxval = math.Max(cube[i][j][k], maxval)
-                    minval = math.Min(cube[i][j][k], minval)
-                    sumval += cube[i][j][k]
+                    if cube[i][j][k] != -1.0 {
+                        maxval = math.Max(cube[i][j][k], maxval)
+                        minval = math.Min(cube[i][j][k], minval)
+                        sumval += cube[i][j][k]
+                    }
                 }
             }
         }

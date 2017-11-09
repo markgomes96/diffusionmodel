@@ -4,8 +4,8 @@ Language : C
 
 To Compile:
 
-    gcc -o diffusion.c
+    gcc diffusion.c
 
 To Run:
 
-    diffusion
+    a.out

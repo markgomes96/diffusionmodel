@@ -45,6 +45,12 @@ if(mem_stat/=0) STOP "MEMORY ALLOCATION ERROR"
 
 forall(i = 1:maxsize, j = 1:maxsize, k = 1:maxsize) cube(i,j,k) = 0.0       ! Zero out the cube
 
+do j=maxsize/2,maxsize            ! Adding in the partition
+    do k=1,maxsize
+        cube(maxsize/2+1,j,k) = -1.0
+    end do
+end do
+
 end subroutine create_cube
 
 subroutine diffuse_cube(maxsize, cube, time)
@@ -79,41 +85,43 @@ do while (ratio < 0.99)        ! Loop until maxval and minval are equal
     do i=1,maxsize              ! Iterate through every cube
         do j=1,maxsize
             do k=1,maxsize
-                change = 0.0
-                if(i - 1 > 0) then          ! Check that potential cube diffusion is in bounds
-                    change = (cube(i,j,k) - cube(i-1,j,k)) * DTerm
-                    cube(i,j,k) = cube(i,j,k) - change
-                    cube(i-1,j,k) = cube(i-1,j,k) + change
-                end if
+                if(cube(i,j,k) /= -1.0) then
+                    change = 0.0
+                    if(i - 1 > 0 .and. cube(i-1,j,k) /= -1.0) then          ! Check that potential cube diffusion is in bounds
+                        change = (cube(i,j,k) - cube(i-1,j,k)) * DTerm
+                        cube(i,j,k) = cube(i,j,k) - change
+                        cube(i-1,j,k) = cube(i-1,j,k) + change
+                    end if
 
-                if(i + 1 <= maxsize) then
-                    change = (cube(i,j,k) - cube(i+1,j,k)) * DTerm
-                    cube(i,j,k) = cube(i,j,k) - change
-                    cube(i+1,j,k) = cube(i+1,j,k) + change
-                end if
+                    if(i + 1 <= maxsize .and. cube(i+1,j,k) /= -1.0) then
+                        change = (cube(i,j,k) - cube(i+1,j,k)) * DTerm
+                        cube(i,j,k) = cube(i,j,k) - change
+                        cube(i+1,j,k) = cube(i+1,j,k) + change
+                    end if
                         
-                if(j - 1 > 0) then
-                    change = (cube(i,j,k) - cube(i,j-1,k)) * DTerm
-                    cube(i,j,k) = cube(i,j,k) - change
-                    cube(i,j-1,k) = cube(i,j-1,k) + change
-                end if
+                    if(j - 1 > 0 .and. cube(i,j-1,k) /= -1.0) then
+                        change = (cube(i,j,k) - cube(i,j-1,k)) * DTerm
+                        cube(i,j,k) = cube(i,j,k) - change
+                        cube(i,j-1,k) = cube(i,j-1,k) + change
+                    end if
 
-                if(j + 1 <= maxsize) then
-                    change = (cube(i,j,k) - cube(i,j+1,k)) * DTerm
-                    cube(i,j,k) = cube(i,j,k) - change
-                    cube(i,j+1,k) = cube(i,j+1,k) + change
-                end if
+                    if(j + 1 <= maxsize .and. cube(i,j+1,k) /= -1.0) then
+                        change = (cube(i,j,k) - cube(i,j+1,k)) * DTerm
+                        cube(i,j,k) = cube(i,j,k) - change
+                        cube(i,j+1,k) = cube(i,j+1,k) + change
+                    end if
 
-                if(k - 1 > 0) then
-                    change = (cube(i,j,k) - cube(i,j,k-1)) * DTerm
-                    cube(i,j,k) = cube(i,j,k) - change
-                    cube(i,j,k-1) = cube(i,j,k-1) + change
-                end if
+                    if(k - 1 > 0 .and. cube(i,j,k-1) /= -1.0) then
+                        change = (cube(i,j,k) - cube(i,j,k-1)) * DTerm
+                        cube(i,j,k) = cube(i,j,k) - change
+                        cube(i,j,k-1) = cube(i,j,k-1) + change
+                    end if
 
-                if(k + 1 <= maxsize) then
-                    change = (cube(i,j,k) - cube(i,j,k+1)) * DTerm
-                    cube(i,j,k) = cube(i,j,k) - change
-                    cube(i,j,k+1) = cube(i,j,k+1) + change
+                    if(k + 1 <= maxsize .and. cube(i,j,k+1) /= -1.0) then
+                        change = (cube(i,j,k) - cube(i,j,k+1)) * DTerm
+                        cube(i,j,k) = cube(i,j,k) - change
+                        cube(i,j,k+1) = cube(i,j,k+1) + change
+                    end if
                 end if
             end do
         end do
@@ -127,9 +135,11 @@ do while (ratio < 0.99)        ! Loop until maxval and minval are equal
     do i=1,maxsize
         do j=1,maxsize
             do k=1,maxsize
-                maxvalue = max(cube(i,j,k), maxvalue)
-                minvalue = min(cube(i,j,k), minvalue)
-                sumvalue = sumvalue + cube(i,j,k)
+                if(cube(i,j,k) /=  -1.0) then
+                    maxvalue = max(cube(i,j,k), maxvalue)
+                    minvalue = min(cube(i,j,k), minvalue)
+                    sumvalue = sumvalue + cube(i,j,k)
+                end if
             end do
         end do
     end do

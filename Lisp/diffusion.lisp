@@ -23,6 +23,21 @@ Assignment 2 - Diffusion Model
   )
 )
 
+;;; Add in partition
+(dotimes(j (+ (/ maxsize 2) 1))
+  (dotimes(k maxsize)
+    (setf(aref A (/ maxsize 2) (+ j (- (/ maxsize 2) 1)) k) -1.0)
+  )
+)
+
+(dotimes(i maxsize)
+  (dotimes(j maxsize)
+    (dotimes(k maxsize)
+      (format t "~D ~D ~D: ~F~%" i j k (aref A i j k))
+    )
+  )
+)
+
 ;;; Diffusion variables
 (defvar diffusion_coefficient 0.175)
 (defvar room_dimension  5.0)                  ;; 5 meters
@@ -45,46 +60,56 @@ Assignment 2 - Diffusion Model
   (dotimes(i maxsize)       ;;; Iterate through every cube in array
     (dotimes(j maxsize)
       (dotimes(k maxsize)
-        (if (>= (- i 1) 0)          ;;; Check if potential diffusion is within bounds
+        (if (/= (aref A i j k) -1.0)
           (progn
-          (setf change (* DTerm (- (aref A i j k) (aref A (- i 1) j k))))
-          (setf (aref A i j k) (- (aref A i j k) change))
-          (setf (aref A (- i 1) j k) (+ (aref A (- i 1) j k) change)))
-        )
-        
-        (if (< (+ i 1) maxsize)
-          (progn
-          (setf change (* DTerm (- (aref A i j k) (aref A (+ i 1) j k))))
-          (setf (aref A i j k) (- (aref A i j k) change))
-          (setf (aref A (+ i 1) j k) (+ (aref A (+ i 1) j k) change)))
-        )
-        
-        (if (>= (- j 1) 0)
+          (if (and (>= (- i 1) 0) (/= (aref A (- i 1) j k) -1.0))          ;;; Check if potential diffusion is within bounds
+            (progn
+            (setf change (* DTerm (- (aref A i j k) (aref A (- i 1) j k))))
+            (setf (aref A i j k) (- (aref A i j k) change))
+            (setf (aref A (- i 1) j k) (+ (aref A (- i 1) j k) change))
+            )
+          )
+          
+          (if (and (< (+ i 1) maxsize) (/= (aref A (+ i 1) j k) -1.0))
+            (progn
+            (setf change (* DTerm (- (aref A i j k) (aref A (+ i 1) j k))))
+            (setf (aref A i j k) (- (aref A i j k) change))
+            (setf (aref A (+ i 1) j k) (+ (aref A (+ i 1) j k) change))
+            )
+          )
+          
+          (if (and (>= (- j 1) 0) (/= (aref A i (- j 1) k) -1.0))
             (progn
             (setf change (* DTerm (- (aref A i j k) (aref A i (- j 1) k))))
             (setf (aref A i j k) (- (aref A i j k) change))
-            (setf (aref A i (- j 1) k) (+ (aref A i (- j 1) k) change)))
-        )
-        
-        (if (< (+ j 1) maxsize)
+            (setf (aref A i (- j 1) k) (+ (aref A i (- j 1) k) change))
+            )
+          )
+          
+          (if (and (< (+ j 1) maxsize) (/= (aref A i (+ j 1) k) -1.0))
             (progn
             (setf change (* DTerm (- (aref A i j k) (aref A i (+ j 1) k))))
             (setf (aref A i j k) (- (aref A i j k) change))
-           (setf (aref A i (+ j 1) k) (+ (aref A i (+ j 1) k) change)))
-        )
-        
-        (if (>= (- k 1) 0)
+            (setf (aref A i (+ j 1) k) (+ (aref A i (+ j 1) k) change))
+            )
+          )
+          
+          (if (and (>= (- k 1) 0) (/= (aref A i j (- k 1)) -1.0))
             (progn
             (setf change (* DTerm (- (aref A i j k) (aref A i j (- k 1)))))
             (setf (aref A i j k) (- (aref A i j k) change))
-            (setf (aref A i j (- k 1)) (+ (aref A i j (- k 1)) change)))
-        )
-        
-        (if (< (+ k 1) maxsize)
+            (setf (aref A i j (- k 1)) (+ (aref A i j (- k 1)) change))
+            )
+          )
+          
+          (if (and (< (+ k 1) maxsize) (/= (aref A i j (+ k 1)) -1.0))
             (progn
             (setf change (* DTerm (- (aref A i j k) (aref A i j (+ k 1)))))
             (setf (aref A i j k) (- (aref A i j k) change))
-            (setf (aref A i j (+ k 1)) (+ (aref A i j (+ k 1)) change)))
+            (setf (aref A i j (+ k 1)) (+ (aref A i j (+ k 1)) change))
+            )
+          )
+          )
         )
       )
     )
@@ -100,9 +125,13 @@ Assignment 2 - Diffusion Model
   (dotimes(i maxsize)
     (dotimes(j maxsize)
       (dotimes(k maxsize)
-        (setf maxval (max (aref A i j k) maxval)) 
-        (setf minval (min (aref A i j k) minval))
-        (setf sumval (+ sumval (aref A i j k)))
+        (if (/= (aref A i j k) -1.0)
+          (progn
+          (setf maxval (max (aref A i j k) maxval)) 
+          (setf minval (min (aref A i j k) minval))
+          (setf sumval (+ sumval (aref A i j k)))
+          )
+        )
       )
     )
   )

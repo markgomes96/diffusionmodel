@@ -25,15 +25,13 @@ public class diffusion
         }
 
         //Adding in the partition
-        /*
-        for (int j = maxsize/2; j < maxsize; j++)
+        for (int j = maxsize/2-1; j < maxsize; j++)
         {
             for (int k = 0; k < maxsize; k++)
             {
                 cube[maxsize/2,j,k] = -1.0;
             }
         }
-        */
 
         //Diffusion variables
         double diffusion_coefficient = 0.175;

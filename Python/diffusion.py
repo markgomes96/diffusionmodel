@@ -15,6 +15,11 @@ for i in range(0,maxsize):
         for k in range(0,maxsize):
             cube[i][j][k] = 0.0
 
+# Add in partition
+for j in range(maxsize/2-1,maxsize):
+    for k in range(0,maxsize):
+        cube[maxsize/2][j][k] = -1.0
+
 # Diffusion Variables
 diffusion_coefficient = 0.175
 room_dimension = 5                   # 5 meters
@@ -33,36 +38,37 @@ while True:             # Loop until maxval and minval are the same
     for i in range(0,maxsize):        # Iterate through the every cube
         for j in range(0,maxsize):
             for k in range(0,maxsize):
-                change = 0.0
-                if i - 1 >= 0:      #Checks if potential cube diffusion is within bounds
-                    change = (cube[i][j][k] - cube[i-1][j][k]) * DTerm
-                    cube[i][j][k] = cube[i][j][k] - change
-                    cube[i-1][j][k] = cube[i-1][j][k] + change
+                if cube[i][j][k] != -1.0:
+                    change = 0.0
+                    if i - 1 >= 0 and cube[i-1][j][k] != -1.0:      #Checks if potential cube diffusion is within bounds
+                        change = (cube[i][j][k] - cube[i-1][j][k]) * DTerm
+                        cube[i][j][k] = cube[i][j][k] - change
+                        cube[i-1][j][k] = cube[i-1][j][k] + change
 
-                if i + 1 < maxsize:
-                    change = (cube[i][j][k] - cube[i+1][j][k]) * DTerm
-                    cube[i][j][k] = cube[i][j][k] - change
-                    cube[i+1][j][k] = cube[i+1][j][k] + change
+                    if i + 1 < maxsize and cube[i+1][j][k] != -1.0:
+                        change = (cube[i][j][k] - cube[i+1][j][k]) * DTerm
+                        cube[i][j][k] = cube[i][j][k] - change
+                        cube[i+1][j][k] = cube[i+1][j][k] + change
                         
-                if j - 1 >= 0:
-                    change = (cube[i][j][k] - cube[i][j-1][k]) * DTerm
-                    cube[i][j][k] = cube[i][j][k] - change
-                    cube[i][j-1][k] = cube[i][j-1][k] + change
+                    if j - 1 >= 0 and cube[i][j-1][k] != -1.0:
+                        change = (cube[i][j][k] - cube[i][j-1][k]) * DTerm
+                        cube[i][j][k] = cube[i][j][k] - change
+                        cube[i][j-1][k] = cube[i][j-1][k] + change
 
-                if j + 1 < maxsize:
-                    change = (cube[i][j][k] - cube[i][j+1][k]) * DTerm
-                    cube[i][j][k] = cube[i][j][k] - change
-                    cube[i][j+1][k] = cube[i][j+1][k] + change
+                    if j + 1 < maxsize and cube[i][j+1][k] != -1.0:
+                        change = (cube[i][j][k] - cube[i][j+1][k]) * DTerm
+                        cube[i][j][k] = cube[i][j][k] - change
+                        cube[i][j+1][k] = cube[i][j+1][k] + change
 
-                if k - 1 >= 0:
-                    change = (cube[i][j][k] - cube[i][j][k-1]) * DTerm
-                    cube[i][j][k] = cube[i][j][k] - change
-                    cube[i][j][k-1] = cube[i][j][k-1] + change
+                    if k - 1 >= 0 and cube[i][j][k-1] != -1.0:
+                        change = (cube[i][j][k] - cube[i][j][k-1]) * DTerm
+                        cube[i][j][k] = cube[i][j][k] - change
+                        cube[i][j][k-1] = cube[i][j][k-1] + change
 
-                if k + 1 < maxsize:
-                    change = (cube[i][j][k] - cube[i][j][k+1]) * DTerm
-                    cube[i][j][k] = cube[i][j][k] - change
-                    cube[i][j][k+1] = cube[i][j][k+1] + change
+                    if k + 1 < maxsize and cube[i][j][k+1] != -1.0:
+                        change = (cube[i][j][k] - cube[i][j][k+1]) * DTerm
+                        cube[i][j][k] = cube[i][j][k] - change
+                        cube[i][j][k+1] = cube[i][j][k+1] + change
                 
     #Check for Mass Consistency
     maxvalue = cube[0][0][0]
@@ -72,9 +78,10 @@ while True:             # Loop until maxval and minval are the same
     for i in range(0,maxsize):
         for j in range(0,maxsize):
             for k in range(0,maxsize):
-                maxvalue = max(cube[i][j][k], maxvalue)
-                minvalue = min(cube[i][j][k], minvalue)
-                sumvalue = sumvalue + cube[i][j][k]
+                if cube[i][j][k] != -1.0:
+                    maxvalue = max(cube[i][j][k], maxvalue)
+                    minvalue = min(cube[i][j][k], minvalue)
+                    sumvalue = sumvalue + cube[i][j][k]
     
     time = time + timestep
     ratio = minvalue / maxvalue

@@ -42,6 +42,15 @@ int main(int argc, char** argv)
         }
     }
 
+    //Adding in the partition
+    for (int j = maxsize/2)-1; j < maxsize; j++)
+    {
+        for (int k = 0; k < maxsize; k++)
+        {
+            cube[(maxsize/2)-1][j][k] = -1.0;
+        }
+    }
+
     //Diffusion variables
     double diffusion_coefficient = 0.175;
     double room_dimension = 5;                  // 5 meters
@@ -55,7 +64,6 @@ int main(int argc, char** argv)
     //Intialize the first cell
     cube[0][0][0] = 1.0e21;
 
-    int pass = 0;
     double time = 0.0;          // To keep up with accumulated system time
     double ratio = 0.0;
 
@@ -67,47 +75,50 @@ int main(int argc, char** argv)
             {
                 for (int k = 0; k < maxsize; k++)
                 {
-                    double change = 0.0;
-                    if(i - 1 >= 0)      //Checks that potential cube diffusion is not out of bounds
+                    if(cube[i][j][k] != -1.0)
                     {
-                        change = (cube[i][j][k] - cube[i-1][j][k]) * DTerm;
-                        cube[i][j][k] = cube[i][j][k] - change;
-                        cube[i-1][j][k] = cube[i-1][j][k] + change;
-                    }
+                        double change = 0.0;
+                        if(i - 1 >= 0 && cube[i-1][j][k] != -1.0)      //Checks that potential cube diffusion is not out of bounds
+                        {
+                            change = (cube[i][j][k] - cube[i-1][j][k]) * DTerm;
+                            cube[i][j][k] = cube[i][j][k] - change;
+                            cube[i-1][j][k] = cube[i-1][j][k] + change;
+                        }
 
-                    if(i + 1 < maxsize)
-                    {
-                        change = (cube[i][j][k] - cube[i+1][j][k]) * DTerm;
-                        cube[i][j][k] = cube[i][j][k] - change;
-                        cube[i+1][j][k] = cube[i+1][j][k] + change;
-                    }
+                        if(i + 1 < maxsize && cube[i+1][j][k] != -1.0)
+                        {
+                            change = (cube[i][j][k] - cube[i+1][j][k]) * DTerm;
+                            cube[i][j][k] = cube[i][j][k] - change;
+                            cube[i+1][j][k] = cube[i+1][j][k] + change;
+                        }
                         
-                    if(j - 1 >= 0)
-                    {
-                        change = (cube[i][j][k] - cube[i][j-1][k]) * DTerm;
-                        cube[i][j][k] = cube[i][j][k] - change;
-                        cube[i][j-1][k] = cube[i][j-1][k] + change;
-                    }
+                        if(j - 1 >= 0 && cube[i][j-1][k] != -1.0)
+                        {
+                            change = (cube[i][j][k] - cube[i][j-1][k]) * DTerm;
+                            cube[i][j][k] = cube[i][j][k] - change;
+                            cube[i][j-1][k] = cube[i][j-1][k] + change;
+                        }
 
-                    if(j + 1 < maxsize)
-                    {
-                        change = (cube[i][j][k] - cube[i][j+1][k]) * DTerm;
-                        cube[i][j][k] = cube[i][j][k] - change;
-                        cube[i][j+1][k] = cube[i][j+1][k] + change;
-                    }
+                        if(j + 1 < maxsize && cube[i][j+1][k] != -1.0)
+                        {
+                            change = (cube[i][j][k] - cube[i][j+1][k]) * DTerm;
+                            cube[i][j][k] = cube[i][j][k] - change;
+                            cube[i][j+1][k] = cube[i][j+1][k] + change;
+                        }
 
-                    if(k - 1 >= 0)
-                    {
-                        change = (cube[i][j][k] - cube[i][j][k-1]) * DTerm;
-                        cube[i][j][k] = cube[i][j][k] - change;
-                        cube[i][j][k-1] = cube[i][j][k-1] + change;
-                    }
+                        if(k - 1 >= 0 && cube[i][j][k-1] != -1.0)
+                        {
+                            change = (cube[i][j][k] - cube[i][j][k-1]) * DTerm;
+                            cube[i][j][k] = cube[i][j][k] - change;
+                            cube[i][j][k-1] = cube[i][j][k-1] + change;
+                        }
 
-                    if(k + 1 < maxsize)
-                    {
-                        change = (cube[i][j][k] - cube[i][j][k+1]) * DTerm;
-                        cube[i][j][k] = cube[i][j][k] - change;
-                        cube[i][j][k+1] = cube[i][j][k+1] + change;
+                        if(k + 1 < maxsize && cube[i][j][k+1] != -1.0)
+                        {
+                            change = (cube[i][j][k] - cube[i][j][k+1]) * DTerm;
+                            cube[i][j][k] = cube[i][j][k] - change;
+                            cube[i][j][k+1] = cube[i][j][k+1] + change;
+                        }
                     }
                 }
             }
@@ -125,9 +136,12 @@ int main(int argc, char** argv)
             {
                 for (int k = 0; k < maxsize; k++)
                 {
-                    maxval = max(cube[i][j][k], maxval);
-                    minval = min(cube[i][j][k], minval);
-                    sumval += cube[i][j][k];
+                    if(cube[i][j][k] != -1.0)
+                    {
+                        maxval = max(cube[i][j][k], maxval);
+                        minval = min(cube[i][j][k], minval);
+                        sumval += cube[i][j][k];
+                    }
                 }
             }
         }
