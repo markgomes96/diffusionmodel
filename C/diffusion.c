@@ -5,6 +5,8 @@
  */
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#include <time.h>
 
 #ifndef max
 #define max(a,b)            (((a) > (b)) ? (a) : (b))
@@ -14,10 +16,43 @@
 #define min(a,b)            (((a) < (b)) ? (a) : (b))
 #endif
 
+typedef int bool;
+enum { false, true };
+
 int main(int argc, char** argv)
 {
-    const int maxsize = 10;         // Dimension of the cube
     int i, j, k;
+    int maxsize = 0;         // Dimension of the cube
+
+    //Read user input for the dimension of the room
+    printf("Enter the room dimensions: ");
+    while(maxsize < 1)            //Reads user input for room dimensions  
+    {
+        scanf ("%d", &maxsize);
+        getchar();
+        if(maxsize < 1)
+            printf("Input was not accepted. Enter agian: ");
+    }
+
+    //Read user input to determine if there is a partition
+    bool partition = false;
+    char userinput;
+    printf("Is there a partition? [y/n] : ");
+    while(true)                 //Reads user input to determine if there is a partition
+    {
+        userinput = getchar();
+        if(userinput == 'y')
+        {
+            partition = true;
+            break;
+        }
+        if(userinput == 'n')
+        {   
+            break;
+        }
+        getchar();
+        printf("Input was not accepted. Enter again. [y/n] : ");
+    }
 
     //Declare the multidimensional array
     double ***cube = malloc(maxsize*sizeof(double**));
@@ -43,11 +78,14 @@ int main(int argc, char** argv)
     }
 
     //Adding in the partition
-    for (int j = maxsize/2)-1; j < maxsize; j++)
+    if(partition == true)
     {
-        for (int k = 0; k < maxsize; k++)
+        for (int j = maxsize/2-1; j < maxsize; j++)
         {
-            cube[(maxsize/2)-1][j][k] = -1.0;
+            for (int k = 0; k < maxsize; k++)
+            {
+                cube[maxsize/2][j][k] = -1.0;
+            }
         }
     }
 
@@ -66,7 +104,7 @@ int main(int argc, char** argv)
 
     double time = 0.0;          // To keep up with accumulated system time
     double ratio = 0.0;
-
+    
     do                  //Loop until the minval and maxval are the same
     {
         for (int i = 0; i < maxsize; i++)       //Iterate though each cube in the array
@@ -75,7 +113,7 @@ int main(int argc, char** argv)
             {
                 for (int k = 0; k < maxsize; k++)
                 {
-                    if(cube[i][j][k] != -1.0)
+                    if(cube[i][j][k] != -1.0)       //Checks that cube is not a partition
                     {
                         double change = 0.0;
                         if(i - 1 >= 0 && cube[i-1][j][k] != -1.0)      //Checks that potential cube diffusion is not out of bounds
@@ -136,7 +174,7 @@ int main(int argc, char** argv)
             {
                 for (int k = 0; k < maxsize; k++)
                 {
-                    if(cube[i][j][k] != -1.0)
+                    if(cube[i][j][k] != -1.0)       //Checks cube is not a partition
                     {
                         maxval = max(cube[i][j][k], maxval);
                         minval = min(cube[i][j][k], minval);

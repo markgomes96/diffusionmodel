@@ -4,12 +4,45 @@
  * Assignment 2 : Diffusion Model
  */
 using System;
+using System.Diagnostics;
 
 public class diffusion
 {
     static public void Main()
     {
-        const int maxsize = 10;                     //Dimension of the cube
+        
+        int maxsize = 0;              //Dimension of the cube
+        Console.Write("Enter the room dimensions: ");
+        while(maxsize < 1)            //Reads user input for room dimensions  
+        {
+            try
+            {
+                maxsize = Convert.ToInt32(Console.ReadLine());
+            }
+            catch
+            {  
+                Console.Write("Input was not accepted. Enter again: ");
+            }
+        }
+        
+        bool partition = false;
+        string userinput;
+        Console.Write("Is there a partition? [y/n] : ");
+        while(true)                 //Reads user input to determine if there is a partition
+        {
+            userinput = Console.ReadLine();
+            if(userinput == "y")
+            {
+                partition = true;
+                break;
+            }
+            if(userinput == "n")
+            {   
+                break;
+            }
+            Console.Write("Input was not accepted. Enter again. [y/n] : ");
+        }
+
         double[,,] cube = new double[maxsize,maxsize,maxsize];      //Instantiate the 3d cube array
 
         //Zero the cube
@@ -25,11 +58,14 @@ public class diffusion
         }
 
         //Adding in the partition
-        for (int j = maxsize/2-1; j < maxsize; j++)
+        if(partition == true)
         {
-            for (int k = 0; k < maxsize; k++)
+            for (int j = maxsize/2-1; j < maxsize; j++)
             {
-                cube[maxsize/2,j,k] = -1.0;
+                for (int k = 0; k < maxsize; k++)
+                {
+                    cube[maxsize/2,j,k] = -1.0;
+                }
             }
         }
 
@@ -49,6 +85,8 @@ public class diffusion
         double time = 0.0;          // To keep up with accumulated system time
         double ratio = 0.0;
 
+        Stopwatch sw = new Stopwatch();
+        sw.Start();
         do                      // Loop until the minvalue and maxvalue is the same
         {
             for (int i = 0; i < maxsize; i++)           // Iterate though each cube in the array
@@ -57,7 +95,7 @@ public class diffusion
                 {
                     for (int k = 0; k < maxsize; k++)
                     {
-                        if(cube[i,j,k] != -1.0)
+                        if(cube[i,j,k] != -1.0)             // Checks if the cube is a partition
                         {
                             double change = 0.0;
                             if(i - 1 >= 0 && cube[i-1,j,k] != -1.0)         // Checks that potential cube diffusion is not out of bounds
@@ -118,7 +156,7 @@ public class diffusion
                 {
                     for (int k = 0; k < maxsize; k++)
                     {
-                        if(cube[i,j,k] != -1.0)
+                        if(cube[i,j,k] != -1.0)         // Checks if the cube is a partition
                         {
                             maxval = Math.Max(cube[i,j,k], maxval);
                             minval = Math.Min(cube[i,j,k], minval);
@@ -135,7 +173,10 @@ public class diffusion
             Console.WriteLine("Sumval: " + sumval);
 
         } while (ratio < 0.99);
-
-        Console.WriteLine("Box equilibrated in " + time + " seconds of simulated time.");
+        
+        sw.Stop();
+        Console.WriteLine("****************************************************************");
+        Console.WriteLine("Box equilibrated in " + sw.Elapsed + " seconds of wall-time");
+        Console.WriteLine("Box equilibrated in " + time + " seconds of simulated-time");
     }
 }

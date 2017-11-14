@@ -4,7 +4,29 @@
 #Dr. Pounds
 #Assignment 2 - Diffusion Model
 
-maxsize = 10
+import sys
+
+# Read user input for the room dimension
+maxsize = 0
+while maxsize < 1:
+    try:
+        maxsize = int(input("Enter the room dimension: "))
+    except:
+        print "Input was not accepted. Enter again: "
+
+# Read user input to determine if there is a partition
+partition = False
+print "Is there a partition? [y/n] : "
+while True:
+    userinput = sys.stdin.read(1)
+    if userinput == 'y':
+        partition = True
+        break
+    if userinput == 'n':
+        break
+    if userinput != '\n':
+        sys.stdin.read(1)
+    print "Input was not accepted. Enter again. [y/n] : "
 
 # Create cube
 cube = [[[0.0 for k in range(maxsize)] for j in range(maxsize)] for i in range(maxsize)]
@@ -16,9 +38,10 @@ for i in range(0,maxsize):
             cube[i][j][k] = 0.0
 
 # Add in partition
-for j in range(maxsize/2-1,maxsize):
-    for k in range(0,maxsize):
-        cube[maxsize/2][j][k] = -1.0
+if(partition == True):
+    for j in range(maxsize/2-1,maxsize):
+        for k in range(0,maxsize):
+            cube[maxsize/2][j][k] = -1.0
 
 # Diffusion Variables
 diffusion_coefficient = 0.175
@@ -38,7 +61,7 @@ while True:             # Loop until maxval and minval are the same
     for i in range(0,maxsize):        # Iterate through the every cube
         for j in range(0,maxsize):
             for k in range(0,maxsize):
-                if cube[i][j][k] != -1.0:
+                if cube[i][j][k] != -1.0:       #Checks if cube is a partition
                     change = 0.0
                     if i - 1 >= 0 and cube[i-1][j][k] != -1.0:      #Checks if potential cube diffusion is within bounds
                         change = (cube[i][j][k] - cube[i-1][j][k]) * DTerm

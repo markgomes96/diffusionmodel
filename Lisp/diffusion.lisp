@@ -5,14 +5,17 @@ CSC 330
 Assignment 2 - Diffusion Model
 ||#
 
-(defvar maxsize 10)
+(defvar maxsize)            ;; Holds the maxsize of the room dimensions
+(write-line "Enter the room dimensions: ")
+(setf maxsize (read))
 
 ;;;Declare the multidimensional array
 ;;; Define a name to be used as a variable
 (defvar A)
 
 ;;; Set up the variable to hold 3-D array
-(setf A (make-array '(10 10 10)))
+;(setf A (make-array '(10 10 10)))   ;; ***Change to change room dimension***
+(setf A (make-array (list maxsize maxsize maxsize)))
 
 ;;; Zero the cube
 (dotimes(i maxsize)
@@ -23,18 +26,19 @@ Assignment 2 - Diffusion Model
   )
 )
 
-;;; Add in partition
-(dotimes(j (+ (/ maxsize 2) 1))
-  (dotimes(k maxsize)
-    (setf(aref A (/ maxsize 2) (+ j (- (/ maxsize 2) 1)) k) -1.0)
-  )
-)
+;;; User input to determine if there is a partition
+(defvar partition 0)
+(write-line "Enter a [1] to add a partition. Enter [0] for no partition. : ")
+(setf partition (read))
 
-(dotimes(i maxsize)
-  (dotimes(j maxsize)
+;;; Add in partition
+(if (= partition 1)
+  (progn
+  (dotimes(j (+ (/ maxsize 2) 1))
     (dotimes(k maxsize)
-      (format t "~D ~D ~D: ~F~%" i j k (aref A i j k))
+      (setf(aref A (/ maxsize 2) (+ j (- (/ maxsize 2) 1)) k) -1.0)
     )
+  )
   )
 )
 
@@ -60,7 +64,7 @@ Assignment 2 - Diffusion Model
   (dotimes(i maxsize)       ;;; Iterate through every cube in array
     (dotimes(j maxsize)
       (dotimes(k maxsize)
-        (if (/= (aref A i j k) -1.0)
+        (if (/= (aref A i j k) -1.0)        ;;; Checks if cube is a partition
           (progn
           (if (and (>= (- i 1) 0) (/= (aref A (- i 1) j k) -1.0))          ;;; Check if potential diffusion is within bounds
             (progn

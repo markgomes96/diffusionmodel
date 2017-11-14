@@ -4,13 +4,17 @@
 program diffusion
 
 integer :: maxsize
+character :: userinput
+logical :: partition
+logical :: break
 real(kind=8), dimension(:,:,:), allocatable :: cube
 real :: time
 integer :: mem_stat
 interface
 
-subroutine create_cube(maxsize, cube)
+subroutine create_cube(maxsize, partition, cube)
 integer :: maxsize
+logical :: partition
 real(kind=8), dimension(:,:,:), allocatable :: cube
 end subroutine create_cube
 
@@ -22,10 +26,27 @@ end subroutine diffuse_cube
 
 end interface
 
-print *, "How big is the cube?"        ! Read in the cube dimension
+print *, "Enter the room dimensions: "        ! Read in the cube dimension
 read *, maxsize
 
-call create_cube(maxsize, cube)
+break = .false.
+print *, "Is there a partition? [y/n] : "       !Read in if there is a partition
+do while(break .eqv. .false.)
+    read *, userinput
+    if (userinput == 'y') then
+        partition = .true.
+        break = .true.
+    end if
+    if (userinput == 'n') then
+        break = .true.
+    else
+        print *, "Input was not accepted. Enter again. [y/n] : "
+    end if
+end do
+maxsize = 10
+partition = .true.
+
+call create_cube(maxsize, partition, cube)
 call diffuse_cube(maxsize, cube, time)
     write(*, 10) "Box equilibrated in ", time, " seconds of simulated time"
 10 format(A, F12.8, A)
@@ -35,8 +56,9 @@ if(mem_stat/=0) STOP "ERROR DEALLOCATING ARRAY"
 
 end program diffusion
 
-subroutine create_cube(maxsize, cube)
+subroutine create_cube(maxsize, partition, cube)
 integer :: maxsize
+logical :: partition
 real(kind=8), dimension(:,:,:), allocatable :: cube
 integer :: mem_stat
 
@@ -45,11 +67,13 @@ if(mem_stat/=0) STOP "MEMORY ALLOCATION ERROR"
 
 forall(i = 1:maxsize, j = 1:maxsize, k = 1:maxsize) cube(i,j,k) = 0.0       ! Zero out the cube
 
-do j=maxsize/2,maxsize            ! Adding in the partition
-    do k=1,maxsize
-        cube(maxsize/2+1,j,k) = -1.0
+if (partition .eqv. .true.) then
+    do j=maxsize/2,maxsize            ! Adding in the partition
+        do k=1,maxsize
+            cube(maxsize/2+1,j,k) = -1.0
+        end do
     end do
-end do
+end if
 
 end subroutine create_cube
 

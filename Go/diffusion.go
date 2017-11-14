@@ -9,8 +9,25 @@ import "fmt"
 import "math"
 
 func main(){
-    var maxsize int = 10            // Cube dimensions
-    var cube [10][10][10] float64       // Instantiate the cube array
+    //Change maxsize const to change room dimension
+    const maxsize int = 10      //***Dimension of the cube***
+    var cube [maxsize][maxsize][maxsize] float64       // Instantiate the cube array
+    
+    var userinput string
+    var partition bool = false
+    fmt.Printf("Is there a partition? [y/n] : ")
+    for {
+        fmt.Scanf("%s", &userinput)
+        if userinput == "y" {
+            partition = true
+            break
+        }
+        if userinput == "n" {
+            break
+        }
+        fmt.Printf("Input was not accepted. Enter again. [y/n] : ")
+    }
+    
     var i, j, k int
         
     // Zero the cube
@@ -23,9 +40,11 @@ func main(){
     }
     
     // Add in partition
-    for j = maxsize/2-1; j < maxsize; j++ {
-        for k = 0; k < maxsize; k++ {
-            cube[maxsize/2][j][k] = -1.0
+    if partition == true {
+        for j = maxsize/2-1; j < maxsize; j++ {
+            for k = 0; k < maxsize; k++ {
+                cube[maxsize/2][j][k] = -1.0
+            }
         }
     }
 
@@ -52,7 +71,7 @@ func main(){
         for i = 0; i < maxsize; i++ {        // Iterate through every cube in the array
             for j = 0; j < maxsize; j++ {
                 for k = 0; k < maxsize; k++ {
-                    if cube[i][j][k] != -1.0 {
+                    if cube[i][j][k] != -1.0 {      // Check if cube is a partition
                         change = 0.0
                         if i - 1 >= 0 && cube[i-1][j][k] != -1.0 {      // Check if the potential cube diffusion is within bounds
                             change = (cube[i][j][k] - cube[i-1][j][k]) * DTerm
